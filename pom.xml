@@ -8,6 +8,7 @@
         <version>2.7.1</version>
         <relativePath/>
     </parent>
+
     <groupId>ru.practicum</groupId>
     <artifactId>shareit</artifactId>
     <version>0.0.1-SNAPSHOT</version>
