@@ -1,13 +1,13 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.UtilityClass;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.comment.CommentMapper;
 
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
-@Service
+@UtilityClass
 public class ItemMapper {
 
     public static ItemDTO toItemDTO(Item item) {

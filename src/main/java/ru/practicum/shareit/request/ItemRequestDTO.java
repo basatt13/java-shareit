@@ -3,16 +3,20 @@ package ru.practicum.shareit.request;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.UserUt;
 
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemRequestDTO {
+
+    @NotBlank
     private long id;
+
+    @NotBlank
     private String description;
-    private UserUt requestor;
+    private UserSpec requestor;
     private LocalDate created;
 }

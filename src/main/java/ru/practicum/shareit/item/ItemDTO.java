@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.comment.CommentsDTO;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -15,11 +15,9 @@ import java.util.List;
 @NoArgsConstructor
 public class ItemDTO {
     private long id;
-    @NotNull
-    @NotEmpty
+    @NotBlank
     private String name;
-    @NotNull
-    @NotEmpty
+    @NotBlank
     private String description;
     @NotNull
     private Boolean available;
@@ -40,8 +38,8 @@ public class ItemDTO {
     @Data
     @AllArgsConstructor
     public static class BookingForItem {
-        long id;
-        long bookerId;
+       private long id;
+       private long bookerId;
     }
 
 }

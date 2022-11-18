@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.EnumStateException;
 import ru.practicum.shareit.exception.NotFoundIdException;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -19,28 +20,28 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    public Booking createBooking(@RequestBody BookingRequest bookingRequest,
+    public BookingDTO create(@Valid @RequestBody BookingRequest bookingRequest,
                                  @RequestHeader(value = "X-Sharer-User-Id") long userId) {
-        return bookingService.createBooking(bookingRequest, userId);
+        return BookingMapper.toBookingDTO(bookingService.createBooking(bookingRequest, userId));
     }
 
 
     @PatchMapping("/{bookingId}")
-    public Booking changeApproved(@PathVariable long bookingId,
+    public BookingDTO changeApproved(@Valid @PathVariable long bookingId,
                                   @RequestHeader(value = "X-Sharer-User-Id") long userId,
-                                  @RequestParam boolean approved) throws NotFoundIdException {
+                                  @RequestParam boolean approved) {
 
-        return bookingService.changeApproved(bookingId, userId, approved);
+        return BookingMapper.toBookingDTO(bookingService.changeApproved(bookingId, userId, approved));
     }
 
     @GetMapping("/{bookingId}")
-    public Booking findBookingId(@PathVariable long bookingId,
-                                 @RequestHeader(value = "X-Sharer-User-Id") long userId) throws NotFoundIdException {
-        return bookingService.findBookingById(bookingId, userId);
+    public BookingDTO findId(@Valid @PathVariable long bookingId,
+                                 @RequestHeader(value = "X-Sharer-User-Id") long userId) {
+        return BookingMapper.toBookingDTO(bookingService.findBookingById(bookingId, userId));
     }
 
     @GetMapping()
-    public List<BookingDTO> findBookingsByUser(@RequestHeader(value = "X-Sharer-User-Id") long userId,
+    public List<BookingDTO> findByUser(@Valid @RequestHeader(value = "X-Sharer-User-Id") long userId,
                                                @RequestParam(value = "state", required = false, defaultValue = "ALL")
                                                String state) {
 
@@ -49,15 +50,10 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<BookingDTO> findBookingByOwner(@RequestParam(value = "state", required = false,
+    public List<BookingDTO> findByOwner(@Valid @RequestParam(value = "state", required = false,
             defaultValue = "ALL") String state,
                                                @RequestHeader("X-Sharer-User-Id")
                                                long ownerId) {
         return bookingService.findBookingsByOwner(ownerId, state);
-    }
-
-    @ExceptionHandler(EnumStateException.class)
-    public ResponseEntity<Map<String, String>> handleIllegalArgument(EnumStateException e) {
-        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 }

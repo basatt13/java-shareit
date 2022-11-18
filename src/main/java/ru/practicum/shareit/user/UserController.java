@@ -7,6 +7,7 @@ import ru.practicum.shareit.exception.DataNotFoundException;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,31 +15,33 @@ import java.util.List;
 @Validated
 public class UserController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
     @GetMapping
-    List<User> allUsers() {
-        return userService.allUsers();
+    List<UserDTO> all() {
+        return userService.allUsers().stream()
+                .map(UserMapper::toUserDTO)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    User getUser(@PathVariable long id) {
-        return userService.getUser(id);
+    UserDTO get(@Valid @PathVariable long id) {
+        return UserMapper.toUserDTO(userService.getUser(id));
     }
 
     @PostMapping
-    User addUser(@Valid @RequestBody UserDTO userDTO) throws DataNotFoundException {
-        return userService.addUser(userDTO);
+    UserDTO add(@Valid @RequestBody UserDTO userDTO) {
+        return UserMapper.toUserDTO(userService.addUser(userDTO));
     }
 
     @PatchMapping("/{userId}")
-    User updateUser(@Valid @RequestBody User user,
+    UserDTO update(@Valid @RequestBody User user,
                     @PathVariable long userId) {
-        return userService.updateUser(user, userId);
+        return UserMapper.toUserDTO(userService.updateUser(user, userId));
     }
 
     @DeleteMapping("/{id}")
-    void deleteUser(@PathVariable long id) {
+    void delete(@Valid @PathVariable long id) {
         userService.deleteUser(id);
     }
 }

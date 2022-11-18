@@ -6,8 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.CommentsDTO;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -15,40 +17,43 @@ import java.util.NoSuchElementException;
 @RequestMapping("/items")
 @Validated
 public class ItemController {
-    private final ItemServiceImpl itemService;
+    private final ItemService itemService;
 
     @PostMapping
-    public Item addItems(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemDTO add(@RequestHeader("X-Sharer-User-Id") long userId,
                          @Valid @RequestBody ItemDTO item) {
-        return itemService.addItem(item, userId);
+        return ItemMapper.toItemDTO(itemService.addItem(item, userId));
     }
 
     @PatchMapping("/{itemId}")
-    public Item updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemDTO update(@RequestHeader("X-Sharer-User-Id") long userId,
                            @PathVariable long itemId,
                            @RequestBody ItemDTO item) {
-        return itemService.update(item, userId, itemId);
+        return ItemMapper.toItemDTO(itemService.update(item, userId, itemId));
     }
 
     @GetMapping("/{itemId}")
-    public ItemDTO getItemById(@PathVariable long itemId,
+    public ItemDTO getById(@Valid @PathVariable long itemId,
                                @RequestHeader(value = "X-Sharer-User-Id") long ownerId) {
 
         return itemService.getItem(itemId, ownerId);
     }
 
     @GetMapping
-    public List<ItemDTO> getAllItems(@RequestHeader("X-Sharer-User-id") long userId) {
+    public List<ItemDTO> getAll(@Valid @RequestHeader("X-Sharer-User-id") long userId) {
         return itemService.getItemsByUserId(userId);
     }
 
     @GetMapping("/search")
-    public List<Item> getItemByText(@RequestParam String text) {
-        return itemService.getItemByText(text);
+    public List<ItemDTO> getByText(@Valid @RequestParam String text) {
+        return
+                itemService.getItemByText(text).stream()
+                        .map(ItemMapper::toItemDTO)
+                        .collect(Collectors.toList());
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentsDTO addComment(@PathVariable("itemId") Long itemId,
+    public CommentsDTO addComment(@Valid @PathVariable("itemId") Long itemId,
                                   @RequestBody CommentsDTO comment,
                                   @RequestHeader("X-Sharer-User-Id") Long userPrincipal)
             throws NoSuchElementException, IllegalArgumentException {

@@ -1,12 +1,12 @@
 package ru.practicum.shareit.request;
 
+import lombok.experimental.UtilityClass;
 
-import ru.practicum.shareit.UserUt;
-
+@UtilityClass
 class ItemRequestMapper {
 
-    public ItemRequestDTO toItemRequestDTO(ItemRequest itemRequest) {
-        UserUt userUt = new UserUt(itemRequest.getRequestor().getId(), itemRequest.getRequestor().getName());
+    public static ItemRequestDTO toItemRequestDTO(ItemRequest itemRequest) {
+        UserSpec userUt = new UserSpec(itemRequest.getRequestor().getId(), itemRequest.getRequestor().getName());
 
         return new ItemRequestDTO(itemRequest.getId(), itemRequest.getDescription(), userUt, itemRequest.getCreated());
 

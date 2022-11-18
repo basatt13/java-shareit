@@ -1,7 +1,10 @@
 package ru.practicum.shareit.item;
 
+import com.mysql.cj.x.protobuf.MysqlxCrud;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.mapping.Collection;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingService;
@@ -16,26 +19,22 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.validate.ValidaterForData;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final ValidaterForData validateUser;
     private final UserRepository userRepository;
-
-    private final ItemMapper itemMapper;
-
     private final BookingRepository bookingRepository;
     private final BookingService bookingService;
     private final CommentsRepository commentsRepository;
 
     @Override
+    @Transactional
     public Item addItem(ItemDTO itemDTO, long id) {
         Item item = ItemMapper.toItem(itemDTO);
         item.setOwner(validateUser.userIdIsPresent(userRepository.findById(id)));
@@ -43,6 +42,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Item update(ItemDTO itemDTO, long id, long itemId) {
         Item item = validateUser.itemIdIsPresent(itemRepository.findById(itemId));
         User user = validateUser.userIdIsPresent(userRepository.findById(id));
@@ -74,8 +74,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<Item> getItemByText(String text) {
         List<Item> itemsResult = new ArrayList<>();
-        if (text.isEmpty() || text.isBlank()) {
-            return new ArrayList<>();
+        if (text.isBlank()) {
+            return Collections.emptyList();
         } else {
             String lowText = text.toLowerCase();
             for (Item item : itemRepository.findAll()) {
@@ -90,6 +90,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentsDTO addComment(Long itemId, CommentsDTO comment, Long userId)
             throws NoSuchElementException, IllegalArgumentException {
         Comments resultComment = new Comments();

@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.NotFoundIdException;
 import ru.practicum.shareit.exception.WrongDateTimeException;
@@ -11,13 +12,16 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.validate.ValidaterForData;
 
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+@Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
+
 public class BookingServiceImpl implements BookingService {
 
     private final ValidaterForData validaterForData;
@@ -26,6 +30,7 @@ public class BookingServiceImpl implements BookingService {
     private final ItemRepository itemRepository;
 
     @Override
+    @Transactional
     public Booking createBooking(BookingRequest bookingRequest, long userId) throws NoSuchElementException,
             DataNotFoundException, WrongDateTimeException {
         Booking booking = new Booking();
@@ -48,7 +53,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking changeApproved(long bookingId, long userId, boolean isApproved) throws NotFoundIdException {
+    @Transactional
+    public Booking changeApproved(long bookingId, long userId, boolean isApproved) {
         Booking booking = validaterForData.bookingIdIsPresent(bookingRepository.findById(bookingId));
         if (booking.getItem().getOwner().getId() != userId) {
             throw new NotFoundIdException("Статус бронирования может менять только хозяин вещи");
@@ -62,7 +68,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking findBookingById(long bookingId, long userId) throws NotFoundIdException {
+    public Booking findBookingById(long bookingId, long userId) {
         Booking booking = validaterForData.bookingIdIsPresent(bookingRepository.findById(bookingId));
         if (booking.getBooker().getId() == userId || booking.getItem().getOwner().getId() == userId) {
             return booking;
