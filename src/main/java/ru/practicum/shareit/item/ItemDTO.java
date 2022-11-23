@@ -1,8 +1,6 @@
 package ru.practicum.shareit.item;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.shareit.comment.CommentsDTO;
 
 import javax.validation.constraints.NotBlank;
@@ -10,7 +8,9 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemDTO {
@@ -27,7 +27,9 @@ public class ItemDTO {
     private List<CommentsDTO> comments;
 
 
-    @Data
+    @Getter
+    @Setter
+    @EqualsAndHashCode
     @AllArgsConstructor
     public static class UserForItemClass {
         private long id;
@@ -35,11 +37,13 @@ public class ItemDTO {
 
     }
 
-    @Data
+    @Getter
+    @Setter
+    @EqualsAndHashCode
     @AllArgsConstructor
     public static class BookingForItem {
-       private long id;
-       private long bookerId;
+        private long id;
+        private long bookerId;
     }
 
 }

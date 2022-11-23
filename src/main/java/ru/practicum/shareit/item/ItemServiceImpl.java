@@ -1,8 +1,6 @@
 package ru.practicum.shareit.item;
 
-import com.mysql.cj.x.protobuf.MysqlxCrud;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.mapping.Collection;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
@@ -20,7 +18,8 @@ import ru.practicum.shareit.validate.ValidaterForData;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -49,26 +48,30 @@ public class ItemServiceImpl implements ItemService {
         if (item.getOwner().getId() == id) {
             item.setOwner(user);
             item.setName(itemDTO.getName() == null ? item.getName() : itemDTO.getName());
-            item.setDescription(itemDTO.getDescription() == null ? item.getDescription() : itemDTO.getDescription());
+            if (itemDTO.getDescription() == null || itemDTO.getDescription().isBlank())
+                item.setDescription(item.getDescription());
+            else item.setDescription(itemDTO.getDescription());
             item.setAvailable(itemDTO.getAvailable() == null ? item.isAvailable() : itemDTO.getAvailable());
         } else {
             throw new NotFoundIdException("Изменять вещь может только её владелец");
         }
-        return itemRepository.save(item);
+        return item;
     }
 
     @Override
     public ItemDTO getItem(long itemId, long ownerId) {
         ItemDTO itemDTO = ItemMapper.toItemDTO(validateUser.itemIdIsPresent(itemRepository.findById(itemId)));
-        return setLastAndNext(itemDTO, ownerId);
+
+        return setLastAndNext(itemDTO, approvedBookings(getItemsByUserId(ownerId).stream().map(ItemMapper::toItem)
+                .collect(toList())));
     }
 
     @Override
     public List<ItemDTO> getItemsByUserId(long userId) {
         return setLastAndNextBooking(itemRepository.
-                findAllByOwner(validateUser.userIdIsPresent(userRepository.findById(userId))), userId).stream()
-                .sorted(Comparator.comparing(ItemDTO::getId))
-                .collect(Collectors.toList());
+                findAllByOwner(validateUser.userIdIsPresent(userRepository.findById(userId))).stream()
+                .sorted(Comparator.comparing(Item::getId))
+                .collect(toList()));
     }
 
     @Override
@@ -116,30 +119,38 @@ public class ItemServiceImpl implements ItemService {
         return CommentMapper.toCommentsDTO(resultComment);
     }
 
-    public ItemDTO setLastAndNext(ItemDTO itemDTO, long ownerId) {
-        Booking lastBooking;
-        Booking nextBooking;
+    public ItemDTO setLastAndNext(ItemDTO itemDTO, List<Booking> bookings) {
 
-        if (itemDTO.getOwner().getId() != ownerId) {
-            nextBooking = null;
-            lastBooking = null;
-        } else {
-            lastBooking = bookingRepository.findLastBooking(itemDTO.getOwner().getId(), itemDTO.getId());
-            nextBooking = bookingRepository.findNextBooking(itemDTO.getOwner().getId(), itemDTO.getId());
-        }
+        Booking lastBooking = bookings.stream()
+                .filter(b -> b.getItem().getId() == itemDTO.getId())
+                .filter(b -> b.getEnd().isBefore(LocalDateTime.now())).findFirst()
+                .orElse(null);
 
-        itemDTO.setLastBooking(lastBooking == null ? null :
-                new ItemDTO.BookingForItem(lastBooking.getId(), lastBooking.getBooker().getId()));
+        Booking nextBooking = bookings.stream()
+                .filter(b -> b.getItem().getId() == itemDTO.getId())
+                .filter(b -> b.getEnd().isAfter(LocalDateTime.now()))
+                .reduce((first, second) -> second)
+                .orElse(null);
+
+
+        if (lastBooking == null) itemDTO.setLastBooking(null);
+        else itemDTO.setLastBooking(new ItemDTO.BookingForItem(lastBooking.getId(), lastBooking.getBooker().getId()));
         itemDTO.setNextBooking(nextBooking == null ? null :
                 new ItemDTO.BookingForItem(nextBooking.getId(), nextBooking.getBooker().getId()));
 
         return itemDTO;
+
     }
 
-    private List<ItemDTO> setLastAndNextBooking(List<Item> items, Long userId) {
+    public List<ItemDTO> setLastAndNextBooking(List<Item> items) {
+        List<Booking> bookings = approvedBookings(items);
         return items.stream()
                 .map(ItemMapper::toItemDTO)
-                .map(dto -> setLastAndNext(dto, userId))
-                .collect(Collectors.toList());
+                .map(dto -> setLastAndNext(dto, bookings))
+                .collect(toList());
+    }
+
+    public List<Booking> approvedBookings(List<Item> items) {
+        return bookingRepository.findApprovedForItems(items.stream().map(Item::getId).collect(toList()));
     }
 }

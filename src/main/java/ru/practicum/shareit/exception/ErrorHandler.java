@@ -56,13 +56,13 @@ public class ErrorHandler {
         return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(OtherException.class)
-    public ResponseEntity<Map<String, String>> handleOtherException(OtherException e) {
+    @ExceptionHandler(Throwable.class)
+    public ResponseEntity<Map<String, String>> handleOtherException(Throwable e) {
         return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(OtherException e) {
+    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(RuntimeException e) {
         return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 

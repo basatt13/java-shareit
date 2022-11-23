@@ -27,7 +27,7 @@ public class ValidaterForData {
         }
     }
 
-    public Item itemIdIsPresent(Optional<Item> item)  {
+    public Item itemIdIsPresent(Optional<Item> item) {
         if (item.isEmpty()) {
             throw new NotFoundIdException("Вещь с указанным id не найдена!");
         } else {
@@ -49,10 +49,6 @@ public class ValidaterForData {
             throw new WrongDateTimeException("Время начала бронирования не может быть " +
                     "позже времени окончания бронирования!");
         }
-        if (bookingRequest.getStart().equals(bookingRequest.getEnd())) {
-            throw new WrongDateTimeException("Время начала бронирования не может быть " +
-                    "равно времени окончания бронирования!");
-        }
         if (bookingRequest.getStart().isBefore(LocalDateTime.now()) ||
                 bookingRequest.getEnd().isBefore(LocalDateTime.now())) {
             throw new WrongDateTimeException("Время начала окончания бронирования не может быть раньше настоящего " +
@@ -61,10 +57,9 @@ public class ValidaterForData {
         return true;
     }
 
-    public State validateStateAsString(String state)  {
-        State stater;
+    public State validateStateAsString(String state) {
         try {
-            return stater = State.valueOf(state);
+            return State.valueOf(state);
         } catch (IllegalArgumentException e) {
             throw new EnumStateException("Unknown state: " + state);
         }

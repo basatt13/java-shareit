@@ -4,7 +4,6 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.exception.NotFoundIdException;
 import ru.practicum.shareit.validate.ValidaterForData;
 
 import java.util.List;

@@ -21,29 +21,29 @@ public class BookingController {
 
     @PostMapping
     public BookingDTO create(@Valid @RequestBody BookingRequest bookingRequest,
-                                 @RequestHeader(value = "X-Sharer-User-Id") long userId) {
+                             @RequestHeader(value = "X-Sharer-User-Id") long userId) {
         return BookingMapper.toBookingDTO(bookingService.createBooking(bookingRequest, userId));
     }
 
 
     @PatchMapping("/{bookingId}")
-    public BookingDTO changeApproved(@Valid @PathVariable long bookingId,
-                                  @RequestHeader(value = "X-Sharer-User-Id") long userId,
-                                  @RequestParam boolean approved) {
+    public BookingDTO changeApproved(@PathVariable long bookingId,
+                                     @RequestHeader(value = "X-Sharer-User-Id") long userId,
+                                     @RequestParam boolean approved) {
 
         return BookingMapper.toBookingDTO(bookingService.changeApproved(bookingId, userId, approved));
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDTO findId(@Valid @PathVariable long bookingId,
-                                 @RequestHeader(value = "X-Sharer-User-Id") long userId) {
+    public BookingDTO findId(@PathVariable long bookingId,
+                             @RequestHeader(value = "X-Sharer-User-Id") long userId) {
         return BookingMapper.toBookingDTO(bookingService.findBookingById(bookingId, userId));
     }
 
     @GetMapping()
-    public List<BookingDTO> findByUser(@Valid @RequestHeader(value = "X-Sharer-User-Id") long userId,
-                                               @RequestParam(value = "state", required = false, defaultValue = "ALL")
-                                               String state) {
+    public List<BookingDTO> findByUser(@RequestHeader(value = "X-Sharer-User-Id") long userId,
+                                       @RequestParam(value = "state", required = false, defaultValue = "ALL")
+                                       String state) {
 
 
         return bookingService.findAllForUser(userId, state);
@@ -52,8 +52,8 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingDTO> findByOwner(@Valid @RequestParam(value = "state", required = false,
             defaultValue = "ALL") String state,
-                                               @RequestHeader("X-Sharer-User-Id")
-                                               long ownerId) {
+                                        @RequestHeader("X-Sharer-User-Id")
+                                        long ownerId) {
         return bookingService.findBookingsByOwner(ownerId, state);
     }
 }

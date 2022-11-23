@@ -14,7 +14,6 @@ public class ItemRequestDTO {
 
     @NotBlank
     private long id;
-
     @NotBlank
     private String description;
     private UserSpec requestor;

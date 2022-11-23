@@ -1,10 +1,7 @@
 package ru.practicum.shareit.item;
 
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.shareit.comment.Comments;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
@@ -16,6 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @Entity
 @Table(name = "items")
@@ -36,6 +34,7 @@ public class Item {
     private ItemRequest request;
 
     @OneToMany(mappedBy = "item")
+    @ToString.Exclude
     private List<Comments> comments = new ArrayList<>();
 
     public Item(long id, String name, String description, boolean available) {

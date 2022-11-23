@@ -31,8 +31,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public Booking createBooking(BookingRequest bookingRequest, long userId) throws NoSuchElementException,
-            DataNotFoundException, WrongDateTimeException {
+    public Booking createBooking(BookingRequest bookingRequest, long userId) throws DataNotFoundException,
+            WrongDateTimeException {
         Booking booking = new Booking();
         if (validaterForData.bookingRequestIsTrue(bookingRequest)) {
             User user = validaterForData.userIdIsPresent(userRepository.findById(userId));
@@ -63,7 +63,7 @@ public class BookingServiceImpl implements BookingService {
         } else {
             booking.setStatus(isApproved ? Status.APPROVED : Status.REJECTED);
         }
-        bookingRepository.save(booking);
+
         return booking;
     }
 

@@ -7,6 +7,7 @@ import ru.practicum.shareit.user.User;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findAllByBookerAndEndIsBeforeOrderByStartDesc(User booker, LocalDateTime now);
@@ -64,4 +65,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query(value = "SELECT * from bookings WHERE booker_id = ? AND start_date < now() AND item_id = ?",
             nativeQuery = true)
     List<Booking> findPassBookings(Long userId, Long itemId);
+
+    @Query(value = "SELECT * FROM bookings as b where b.status = 'APPROVED'", nativeQuery = true)
+    List<Booking> findBookingByStatus(Status status);
+
+    @Query(value = "SELECT * FROM bookings as b where b.item_id in ?1 and b.status = 'APPROVED' ORDER BY b.start_date DESC ",
+            nativeQuery = true)
+    List<Booking> findApprovedForItems(List<Long> items);
+
 }
