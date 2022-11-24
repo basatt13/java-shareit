@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.CommentsDTO;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,14 +18,14 @@ public class ItemController {
 
     @PostMapping
     public ItemDTO add(@RequestHeader("X-Sharer-User-Id") long userId,
-                       @Valid @RequestBody ItemDTO item) {
+                       @Valid @RequestBody ItemDTORequest item) {
         return ItemMapper.toItemDTO(itemService.addItem(item, userId));
     }
 
     @PatchMapping("/{itemId}")
     public ItemDTO update(@RequestHeader("X-Sharer-User-Id") long userId,
                           @PathVariable long itemId,
-                          @RequestBody ItemDTO item) {
+                          @RequestBody ItemDTORequest item) {
         return ItemMapper.toItemDTO(itemService.update(item, userId, itemId));
     }
 
@@ -42,10 +43,14 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDTO> getByText(@RequestParam String text) {
-        return
-                itemService.getItemByText(text).stream()
-                        .map(ItemMapper::toItemDTO)
-                        .collect(Collectors.toList());
+        if (text.isBlank()) {
+            return Collections.emptyList();
+        } else {
+            return
+                    itemService.getItemByText(text).stream()
+                            .map(ItemMapper::toItemDTO)
+                            .collect(Collectors.toList());
+        }
     }
 
     @PostMapping("/{itemId}/comment")

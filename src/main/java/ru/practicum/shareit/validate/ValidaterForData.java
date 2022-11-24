@@ -45,33 +45,10 @@ public class ValidaterForData {
     }
 
     public boolean bookingRequestIsTrue(BookingRequest bookingRequest) {
-        if (bookingRequest.getStart().isAfter(bookingRequest.getEnd())) {
+        if (!bookingRequest.getStart().isBefore(bookingRequest.getEnd())) {
             throw new WrongDateTimeException("Время начала бронирования не может быть " +
                     "позже времени окончания бронирования!");
         }
-        if (bookingRequest.getStart().isBefore(LocalDateTime.now()) ||
-                bookingRequest.getEnd().isBefore(LocalDateTime.now())) {
-            throw new WrongDateTimeException("Время начала окончания бронирования не может быть раньше настоящего " +
-                    "времени!");
-        }
         return true;
     }
-
-    public State validateStateAsString(String state) {
-        try {
-            return State.valueOf(state);
-        } catch (IllegalArgumentException e) {
-            throw new EnumStateException("Unknown state: " + state);
-        }
-    }
-
-    public boolean isValidateComment(CommentsDTO commentsDTO) {
-        if (commentsDTO.getText().isEmpty()) {
-            throw new DataNotFoundException("Комментарий не должен быть пустым");
-        } else {
-            return true;
-        }
-    }
-
-
 }

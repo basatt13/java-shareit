@@ -50,7 +50,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<BookingDTO> findByOwner(@Valid @RequestParam(value = "state", required = false,
+    public List<BookingDTO> findByOwner(@RequestParam(value = "state", required = false,
             defaultValue = "ALL") String state,
                                         @RequestHeader("X-Sharer-User-Id")
                                         long ownerId) {

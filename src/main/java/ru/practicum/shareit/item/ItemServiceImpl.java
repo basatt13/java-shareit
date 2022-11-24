@@ -34,7 +34,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public Item addItem(ItemDTO itemDTO, long id) {
+    public Item addItem(ItemDTORequest itemDTO, long id) {
         Item item = ItemMapper.toItem(itemDTO);
         item.setOwner(validateUser.userIdIsPresent(userRepository.findById(id)));
         return itemRepository.save(item);
@@ -42,7 +42,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public Item update(ItemDTO itemDTO, long id, long itemId) {
+    public Item update(ItemDTORequest itemDTO, long id, long itemId) {
         Item item = validateUser.itemIdIsPresent(itemRepository.findById(itemId));
         User user = validateUser.userIdIsPresent(userRepository.findById(id));
         if (item.getOwner().getId() == id) {
@@ -62,7 +62,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDTO getItem(long itemId, long ownerId) {
         ItemDTO itemDTO = ItemMapper.toItemDTO(validateUser.itemIdIsPresent(itemRepository.findById(itemId)));
 
-        return setLastAndNext(itemDTO, approvedBookings(getItemsByUserId(ownerId).stream().map(ItemMapper::toItem)
+        return setLastAndNext(itemDTO, approvedBookings(getItemsByUserId(ownerId).stream().map(ItemMapper::toItemFromDTO)
                 .collect(toList())));
     }
 
@@ -76,28 +76,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> getItemByText(String text) {
-        List<Item> itemsResult = new ArrayList<>();
-        if (text.isBlank()) {
-            return Collections.emptyList();
-        } else {
-            String lowText = text.toLowerCase();
-            for (Item item : itemRepository.findAll()) {
-                if ((item.getName().toLowerCase().contains(lowText) || item.getDescription().toLowerCase()
-                        .contains(lowText))
-                        && item.isAvailable()) {
-                    itemsResult.add(item);
-                }
-            }
-        }
-        return itemsResult;
+        return itemRepository.findAllByAvailableAndNameOrDescription(text);
     }
 
     @Override
     @Transactional
-    public CommentsDTO addComment(Long itemId, CommentsDTO comment, Long userId)
-            throws NoSuchElementException, IllegalArgumentException {
+    public CommentsDTO addComment(Long itemId, CommentsDTO comment, Long userId) {
         Comments resultComment = new Comments();
-        validateUser.isValidateComment(comment);
         Item item = validateUser.itemIdIsPresent(itemRepository.findById(itemId));
 
         User user = validateUser.userIdIsPresent(userRepository.findById(userId));

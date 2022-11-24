@@ -79,8 +79,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDTO> findAllForUser(long userId, String state1) throws NoSuchElementException {
-        State state = validaterForData.validateStateAsString(state1);
+    public List<BookingDTO> findAllForUser(long userId, String state1) {
+        State state = State.validateStateAsString(state1);
         User user = validaterForData.userIdIsPresent(userRepository.findById(userId));
         switch (state) {
             case PAST:
@@ -117,7 +117,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingDTO> findBookingsByOwner(Long userId, String state1) {
         User owner = validaterForData.userIdIsPresent(userRepository.findById(userId));
 
-        State state = validaterForData.validateStateAsString(state1);
+        State state = State.validateStateAsString(state1);
 
         List<Booking> bookings = bookingRepository.findBookingByOwner(owner.getId());
 

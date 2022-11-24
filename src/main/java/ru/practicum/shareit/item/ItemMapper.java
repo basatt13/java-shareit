@@ -17,7 +17,11 @@ public class ItemMapper {
         );
     }
 
-    public static Item toItem(ItemDTO itemDTO) {
-        return new Item(itemDTO.getId(), itemDTO.getName(), itemDTO.getDescription(), itemDTO.getAvailable());
+    public static Item toItem(ItemDTORequest itemDTORequest) {
+        return new Item(itemDTORequest.getId(), itemDTORequest.getName(), itemDTORequest.getDescription(), itemDTORequest.getAvailable());
+    }
+
+    public static Item toItemFromDTO(ItemDTO itemDTORequest) {
+        return new Item(itemDTORequest.getId(), itemDTORequest.getName(), itemDTORequest.getDescription(), itemDTORequest.getAvailable());
     }
 }
